@@ -1,5 +1,5 @@
 """
-https://cookbook.openai.com/examples/third_party/financial_document_analysis_with_llamaindex
+https://docs.llamaindex.ai/en/stable/understanding/putting_it_all_together/q_and_a.html#multi-document-queries
 """
 import streamlit as st
 import asyncio
