@@ -1,0 +1,17 @@
+python-dotenv
+pypdf
+openai
+llama_index
+langchain
+langchain-community
+langchain_openai
+
+pypdf2
+transformers
+scikit-learn
+torch
+datasets
+faiss-cpu
+
+llama-cpp-python
+streamlit
