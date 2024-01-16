@@ -2,13 +2,16 @@
 https://docs.llamaindex.ai/en/stable/understanding/putting_it_all_together/q_and_a.html#multi-document-queries
 """
 import streamlit as st
+from streamlit.report_thread import get_report_ctx
+from streamlit.server.server import Server
+
 import asyncio
 import nest_asyncio
 nest_asyncio.apply()
 
 
 # from langchain import OpenAI # deprecated
-# from langchain_openai import OpenAI
+from langchain_openai import OpenAI
 
 from llama_index import SimpleDirectoryReader, ServiceContext, VectorStoreIndex, StorageContext, load_index_from_storage
 from llama_index import set_global_service_context
@@ -107,7 +110,7 @@ query_engine_tools = [
         query_engine=ema_cloud_strategy_engine,
         description="""The EMEA cloud strategy document outlines guidelines for adopting 
                               cloud-based technologies, focusing on security, data protection, compliance, and 
-                              accelerating digitalization and innovation initiatives.3"""
+                              accelerating digitalization and innovation initiatives"""
     ),
     QueryEngineTool.from_defaults(
         query_engine=ema_risk_management_engine,
@@ -121,26 +124,81 @@ query_engine = RouterQueryEngine.from_defaults(
     query_engine_tools=query_engine_tools
 )
 
+# Function to get the session state
+def get_session_state():
+    return st.session_state
 
-st.title("Document Query Application")
+# Function to set the session state
+def set_session_state(**kwargs):
+    for key, value in kwargs.items():
+        st.session_state[key] = value
 
-user_input = st.text_input('Enter your question:')
-if user_input:
-    prompt = f"""
-    You have been trained on the following documents:
-    
-    1. FDA_Title21_CFR_Part_11_computer_systems.pdf
-    2. FDA_GAMP5.pdf
-    3. EU_annex11_computerised_systems.pdf
-    4. EMA_cloud_strategy.pdf
-    5. EMA_guideline_q9_quality_risk_management.pdf
+# Function to get the response without metadata
+def get_response_without_metadata(response):
+    # print(type(response))
+    # print(response)
+    return response #response['choices'][0]['text']
 
-    Make sure to use all of them when answering the question below.
-    You may use external knowledge to reason about the question you are asked to answer but DO NOT use external knowledge to answer the question.
-    
-    QUESTION:
-    {user_input}
-    """
+# Main app
+def main():
 
-    response = query_engine.query(prompt)
-    st.write(response)
+    state = get_session_state()
+
+    # Check if there's an ongoing conversation
+    if not hasattr(state, 'conversation'):
+        state.conversation = []
+
+    # Check if there's an ongoing conversation
+    if hasattr(state, 'conversation'):
+        conversation = state.conversation
+    else:
+        conversation = []
+
+    # Get the number of questions asked
+    num_questions = len([speaker for speaker, _ in conversation if speaker == 'You'])
+
+    # Create an input box for the next question
+    user_input = st.text_input(f'Enter your question {num_questions+1}:', key=f'question{num_questions+1}')
+
+    # Create a button to confirm the input
+    if st.button('Ask Me!', key=f'button{num_questions+1}'):
+        # Add the question to the conversation
+        conversation.append(('You', user_input))
+
+        # Update the conversation in the session state
+        set_session_state(conversation=conversation)
+
+        prompt = f"""
+        You have been trained on the following documents:
+
+        1. FDA_Title21_CFR_Part_11_computer_systems.pdf
+        2. FDA_GAMP5.pdf
+        3. EU_annex11_computerised_systems.pdf
+        4. EMA_cloud_strategy.pdf
+        5. EMA_guideline_q9_quality_risk_management.pdf
+
+        Make sure to use all of them when answering the question below.
+        You may use external knowledge to reason about the question you are asked to answer but DO NOT use external knowledge to answer the question.
+
+        QUESTION:
+        {user_input}
+        """
+
+        response = query_engine.query(prompt)
+
+        # Extract the answer without metadata
+        answer = get_response_without_metadata(response)
+
+        # Add the answer to the conversation
+        conversation.append(('AI', answer))
+
+        # Update the conversation in the session state
+        set_session_state(conversation=conversation)
+
+    # Display the conversation
+    for speaker, text in conversation:
+        st.write(f'{speaker}: {text}')
+
+
+if __name__ == "__main__":
+    main()

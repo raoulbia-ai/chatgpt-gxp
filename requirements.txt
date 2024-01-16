@@ -2,16 +2,18 @@ python-dotenv
 pypdf
 openai
 llama_index
-langchain
-langchain-community
+# langchain
+#langchain-community
 langchain_openai
 
-pypdf2
-transformers
-scikit-learn
-torch
-datasets
-faiss-cpu
+#pypdf2
+#transformers
+#scikit-learn
+#torch
+#datasets
+#faiss-cpu
 
-llama-cpp-python
-streamlit
+#llama-cpp-python
+streamlit==1.3.1
+protobuf==3.20.1
+altair<5
