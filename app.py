@@ -2,20 +2,20 @@
 https://docs.llamaindex.ai/en/stable/understanding/putting_it_all_together/q_and_a.html#multi-document-queries
 """
 import streamlit as st
-from streamlit.report_thread import get_report_ctx
-from streamlit.server.server import Server
+# from streamlit.report_thread import get_report_ctx
+# from streamlit.server.server import Server
 
-import asyncio
+# import asyncio
 import nest_asyncio
 nest_asyncio.apply()
 
 
 # from langchain import OpenAI # deprecated
-from langchain_openai import OpenAI
+# from langchain_openai import OpenAI
 
 from llama_index import SimpleDirectoryReader, ServiceContext, VectorStoreIndex, StorageContext, load_index_from_storage
 from llama_index import set_global_service_context
-from llama_index.response.pprint_utils import pprint_response
+# from llama_index.response.pprint_utils import pprint_response
 from llama_index.tools import QueryEngineTool, ToolMetadata
 from llama_index.query_engine import SubQuestionQueryEngine, RouterQueryEngine
 
@@ -23,10 +23,13 @@ from dotenv import load_dotenv, find_dotenv
 import os
 load_dotenv(find_dotenv(), override=True)
 # OpenAI.api_key = os.getenv("OPENAI_API_KEY")
+username = os.environ.get('BASIC_AUTH_USERNAME')
+password = os.environ.get('BASIC_AUTH_PASSWORD')
 
-import httpx
-with httpx.Client(verify=False) as client:
-    response = client.get('http://localhost:8501/')
+
+# import httpx
+# with httpx.Client(verify=False) as client:
+#     response = client.get('http://localhost:8501/')
 
 
 # text-davinci=003 is deprecated - see https://stackoverflow.com/questions/77789886/openai-api-error-the-model-text-davinci-003-has-been-deprecated
@@ -140,34 +143,35 @@ def get_response_without_metadata(response):
     return response #response['choices'][0]['text']
 
 # Main app
+import streamlit as st
+
+
 def main():
+    st.title("ChatGPT - GxP")
+    st.write("<style>div.block-container{align-items: center;}</style>", unsafe_allow_html=True)
+    st.markdown(
+        "<div style='text-align: center'>Proof of Concept ChatGPT Application trained on GAMP 5 and other similar public documents.</div>",
+        unsafe_allow_html=True)
 
-    state = get_session_state()
+    # Session state to store conversation history
+    if 'conversation' not in st.session_state:
+        st.session_state.conversation = []
 
-    # Check if there's an ongoing conversation
-    if not hasattr(state, 'conversation'):
-        state.conversation = []
+    # Input for questions
+    user_input = st.text_input("Enter your question:", key='question_input', on_change=handle_input,
+                               args=(st.session_state.conversation,))
 
-    # Check if there's an ongoing conversation
-    if hasattr(state, 'conversation'):
-        conversation = state.conversation
-    else:
-        conversation = []
+    # Display conversation
+    for speaker, text in st.session_state.conversation:
+        st.write(f"{speaker}: {text}")
 
-    # Get the number of questions asked
-    num_questions = len([speaker for speaker, _ in conversation if speaker == 'You'])
 
-    # Create an input box for the next question
-    user_input = st.text_input(f'Enter your question {num_questions+1}:', key=f'question{num_questions+1}')
-
-    # Create a button to confirm the input
-    if st.button('Ask Me!', key=f'button{num_questions+1}'):
-        # Add the question to the conversation
-        conversation.append(('You', user_input))
-
-        # Update the conversation in the session state
-        set_session_state(conversation=conversation)
-
+def handle_input(conversation):
+    user_input = st.session_state.question_input
+    if user_input:
+        # Add question to conversation
+        conversation.append(("You", user_input))
+        # Process the question and generate answer (placeholder)
         prompt = f"""
         You have been trained on the following documents:
 
@@ -178,26 +182,19 @@ def main():
         5. EMA_guideline_q9_quality_risk_management.pdf
 
         Make sure to use all of them when answering the question below.
-        You may use external knowledge to reason about the question you are asked to answer but DO NOT use external knowledge to answer the question.
+        You may uselet's procee external knowledge to reason about the question you are asked to answer but DO NOT use external knowledge to answer the question.
 
         QUESTION:
         {user_input}
         """
 
         response = query_engine.query(prompt)
-
-        # Extract the answer without metadata
         answer = get_response_without_metadata(response)
 
-        # Add the answer to the conversation
-        conversation.append(('AI', answer))
-
-        # Update the conversation in the session state
-        set_session_state(conversation=conversation)
-
-    # Display the conversation
-    for speaker, text in conversation:
-        st.write(f'{speaker}: {text}')
+        # Add answer to conversation
+        conversation.append(("AI", answer))
+        # Clear input box
+        st.session_state.question_input = ""
 
 
 if __name__ == "__main__":
