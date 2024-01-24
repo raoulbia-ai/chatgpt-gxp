@@ -1,48 +1,16 @@
-"""
-https://docs.llamaindex.ai/en/stable/understanding/putting_it_all_together/q_and_a.html#multi-document-queries
-"""
-import csv
-from datetime import datetime
-import streamlit as st
-# from streamlit.report_thread import get_report_ctx
-# from streamlit.server.server import Server
-
-# import asyncio
-import nest_asyncio
-nest_asyncio.apply()
-
-
-# from langchain import OpenAI # deprecated
-# from langchain_openai import OpenAI
-
+import os
+from dotenv import load_dotenv, find_dotenv
 from llama_index import SimpleDirectoryReader, ServiceContext, VectorStoreIndex, StorageContext, load_index_from_storage
 from llama_index import set_global_service_context
-# from llama_index.response.pprint_utils import pprint_response
-from llama_index.tools import QueryEngineTool, ToolMetadata
+from llama_index.tools import QueryEngineTool
 from llama_index.query_engine import SubQuestionQueryEngine, RouterQueryEngine
 
-from dotenv import load_dotenv, find_dotenv
-import os
 load_dotenv(find_dotenv(), override=True)
-# OpenAI.api_key = os.getenv("OPENAI_API_KEY")
 username = os.environ.get('BASIC_AUTH_USERNAME')
 password = os.environ.get('BASIC_AUTH_PASSWORD')
 
-
-# import httpx
-# with httpx.Client(verify=False) as client:
-#     response = client.get('http://localhost:8501/')
-
-
-# text-davinci=003 is deprecated - see https://stackoverflow.com/questions/77789886/openai-api-error-the-model-text-davinci-003-has-been-deprecated
-# llm = OpenAI(temperature=0, model_name="gpt-3.5-turbo-instruct", max_tokens=-1)
-
-service_context = ServiceContext.from_defaults(
-    # llm=llm
-)
+service_context = ServiceContext.from_defaults()
 set_global_service_context(service_context=service_context)
-
-
 
 try:
     fda_comp_systems_storage_context = StorageContext.from_defaults(persist_dir='storageDefaultLlmAll')
@@ -129,95 +97,25 @@ query_engine = RouterQueryEngine.from_defaults(
     query_engine_tools=query_engine_tools
 )
 
-# Function to get the session state
-def get_session_state():
-    return st.session_state
+def rerank_results(results, criteria):
+    """
+    Reranks the results from the OpenAI LLM based on a given criteria.
 
-# Function to set the session state
-def set_session_state(**kwargs):
-    for key, value in kwargs.items():
-        st.session_state[key] = value
+    :param results: A list of results from the OpenAI LLM.
+    :param criteria: A function that takes a result and returns a numerical score for reranking.
+    :return: A list of reranked results.
+    """
+    try:
+        # Sort the results based on the score returned by the criteria function.
+        # The highest scores come first.
+        reranked_results = sorted(results, key=criteria, reverse=True)
+        return reranked_results
+    except Exception as e:
+        # In case of an error, you might want to handle it or log it.
+        # Placeholder for future error handling/logging.
+        raise e
 
-# Function to get the response without metadata
-def get_response_without_metadata(response):
-    # print(type(response))
-    # print(response)
-    return response #response['choices'][0]['text']
-
-# Main app
-import streamlit as st
-
-
-def main():
-    st.title("ChatGPT - GxP")
-    st.write("<style>div.block-container{align-items: center;}</style>", unsafe_allow_html=True)
-    st.markdown(
-        "<div style='text-align: center'>Proof of Concept ChatGPT Application trained on GAMP 5 and other similar public documents.</div>",
-        unsafe_allow_html=True)
-
-    # Session state to store conversation history
-    if 'conversation' not in st.session_state:
-        st.session_state.conversation = []
-
-    # Input for questions
-    user_input = st.text_input("Enter your question:", key='question_input', on_change=handle_input,
-                               args=(st.session_state.conversation,))
-
-    # Display conversation
-    for speaker, text in st.session_state.conversation:
-        st.write(f"{speaker}: {text}")
-
-
-def handle_input(conversation):
-    user_input = st.session_state.question_input
-    if user_input:
-
-        # Add question to conversation
-        conversation.append(("You", user_input))
-        # Process the question and generate answer (placeholder)
-        prompt = f"""
-            As an AI expert in GxP regulatory guidelines and pharmaceutical compliance, your knowledge is exclusively 
-            based on these specific documents:
-
-            1. FDA Title 21 CFR Part 11: Computer Systems Validation in GxP Environments
-            2. FDA's GAMP 5 Guide: Standards for GxP Compliant Computerized Systems
-            3. EU's Annex 11: Computerised Systems in GxP Contexts
-            4. EMA's Cloud Strategy: Compliance in Digital Data Storage for GxP
-            5. EMA's Guideline on Quality Risk Management (Q9)
-
-            When responding to questions, provide a succinct summary, followed by a detailed analysis grounded in these 
-            documents, and conclude with practical implications. Your explanations should be technically comprehensive, 
-            tailored for an audience highly knowledgeable in the pharmaceutical field.
-
-            Maintain strict adherence to the content within these documents. In the case of ambiguities in user input, 
-            seek clarification to ensure precise responses. While prioritizing direct answers, also proactively suggest 
-            related topics or questions for deeper exploration when relevant.
-
-            QUESTION:
-            {user_input}
-        """
-
-        response = query_engine.query(prompt)
-        answer = get_response_without_metadata(response)
-
-        # Get the current date and time
-        now = datetime.now()
-        # Format it as a string in the "yyyymmdd" format
-        timestamp = now.strftime("%Y%m%d")
-        
-        # Save the question, the top answer, and the timestamp to a CSV file
-        with open('questions_answers.csv', 'a', newline='') as f:
-            writer = csv.writer(f)
-            # Write the question, the top answer, and the timestamp to the CSV file
-            # Assuming reranked_results[0] is the top answer
-            writer.writerow([user_input, answer, timestamp])
-        
-
-        # Add answer to conversation
-        conversation.append(("AI", answer))
-        # Clear input box
-        st.session_state.question_input = ""
-
-
-if __name__ == "__main__":
-    main()
+def criteria(result):
+    # This is a placeholder function. You'll need to replace this with your actual criteria.
+    # For this example, we're assuming that each result has a 'score' attribute that we can use for reranking.
+    return result['score']

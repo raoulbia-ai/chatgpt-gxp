@@ -3,3 +3,4 @@
 archive/
 storageDefaultLlmAll/
 .env
+ZscalerRootCertificate-2048-SHA256.pem
