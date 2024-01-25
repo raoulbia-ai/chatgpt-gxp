@@ -13,6 +13,14 @@ How does GAMP 5 guide address risk management in pharmaceutical manufacturing?
 Explain the role of quality systems standards, like ISO 9000, in GAMP 5 compliant systems.
 What are the best practices for implementing a life cycle approach to GxP computerized systems according to GAMP 5?
 Describe the GAMP 5 recommendations for leveraging supplier involvement in GxP system development.
+
+Q's OSs_in_Regulated_Industries_based_on_GAMP
+what do you know about OSS in the context of GxP?
+Regulatory Compliance: "What are the key considerations for ensuring regulatory compliance when using Open Source Software in pharmaceutical manufacturing?"
+Risk Management: "Describe the risk management strategies recommended for integrating Open Source Software in a GAMP-regulated environment."
+Technical Comparison: "Compare and contrast the validation processes for Open Source Software and proprietary software in regulated industries."
+Implementation Challenges: "What are the common challenges faced when implementing Open Source Software in a regulated industry, and how can they be overcome?"
+Best Practices: "Outline the best practices for documenting and maintaining Open Source Software to meet the standards of regulated industries."
 """
 import streamlit as st
 # from streamlit.report_thread import get_report_ctx
