@@ -1,5 +1,12 @@
 """
 https://docs.llamaindex.ai/en/stable/understanding/putting_it_all_together/q_and_a.html#multi-document-queries
+
+EMA_cloud_strategy
+EMA_guideline_q9_quality_risk_management
+EU_annex11_computerised_systems
+FDA_GAMP5
+FDA_Title21_CFR_Part_11_computer_systems
+OSS_in_Regulated_Industries_based_on_GAMP
 """
 import streamlit as st
 # from streamlit.report_thread import get_report_ctx
@@ -29,7 +36,7 @@ password = os.environ.get('BASIC_AUTH_PASSWORD')
 from pathlib import Path
 from llama_index import download_loader
 
-JSONReader = download_loader("JsonDataReader")
+JSONReader = download_loader("JSONReader")
 loader = JSONReader()
 
 # import httpx
@@ -47,8 +54,8 @@ set_global_service_context(service_context=service_context)
 
 
 try:
-    # fda_comp_systems_storage_context = StorageContext.from_defaults(persist_dir='storageDefaultLlmAll')
-    # fda_comp_systems_index = load_index_from_storage(fda_comp_systems_storage_context)
+    fda_comp_systems_storage_context = StorageContext.from_defaults(persist_dir='storageDefaultLlmAllJSON')
+    fda_comp_systems_index = load_index_from_storage(fda_comp_systems_storage_context)
 
     fda_gxp_storage_context = StorageContext.from_defaults(persist_dir='storageDefaultLlmAllJSON')
     fda_gxp_index = load_index_from_storage(fda_gxp_storage_context)
@@ -65,42 +72,43 @@ try:
     print('loading from disk')
 except:
     # fda_comp_systems = SimpleDirectoryReader(input_files=["./data/FDA_Title21_CFR_Part_11_computer_systems.pdf"]).load_data()
-    fda_gxp = loader.load_date(Path("./data/json/FDA_GAMP5.json"))
+    fda_comp_systems = loader.load_data(Path("./data/json/FDA_GAMP5.json"))
+    fda_gxp = loader.load_data(Path("./data/json/FDA_GAMP5.json"))
     # eu_comp_systems = SimpleDirectoryReader(input_files=["./data/EU_annex11_computerised_systems.pdf"]).load_data()
     # ema_cloud_strategy = SimpleDirectoryReader(input_files=["./data/EMA_cloud_strategy.pdf"]).load_data()
     # ema_risk_management = SimpleDirectoryReader(input_files=["./data/EMA_guideline_q9_quality_risk_management.pdf"]).load_data()
 
-    # print(f'Loaded  fda_comp_systems with {len(fda_comp_systems)} pages')
+    print(f'Loaded  fda_comp_systems with {len(fda_comp_systems)} pages')
     print(f'Loaded  fda_gxp with {len(fda_gxp)} pages')
     # print(f'Loaded  eu_comp_systems with {len(eu_comp_systems)} pages')
     # print(f'Loaded  ema_cloud_strategy with {len(ema_cloud_strategy)} pages')
     # print(f'Loaded  ema_risk_management with {len(ema_risk_management)} pages')
 
-    # fda_comp_systems_index = VectorStoreIndex.from_documents(fda_comp_systems, show_progress=True)
+    fda_comp_systems_index = VectorStoreIndex.from_documents(fda_comp_systems, show_progress=True)
     fda_gxp_index = VectorStoreIndex.from_documents(fda_gxp, show_progress=True)
     # eu_comp_systems_index = VectorStoreIndex.from_documents(eu_comp_systems, show_progress=True)
     # ema_cloud_strategy_index = VectorStoreIndex.from_documents(ema_cloud_strategy, show_progress=True)
     # ema_risk_management_index = VectorStoreIndex.from_documents(ema_risk_management, show_progress=True)
 
-    # fda_comp_systems_index.storage_context.persist(persist_dir='storageDefaultLlmAll')
+    fda_comp_systems_index.storage_context.persist(persist_dir='storageDefaultLlmAll')
     fda_gxp_index.storage_context.persist(persist_dir='storageDefaultLlmAllJSON')
     # ema_cloud_strategy_index.storage_context.persist(persist_dir='storageDefaultLlmAll')
     # eu_comp_systems_index.storage_context.persist(persist_dir='storageDefaultLlmAll')
     # ema_risk_management_index.storage_context.persist(persist_dir='storageDefaultLlmAll')
 
-# fda_comp_systems_engine = fda_comp_systems_index.as_query_engine(similarity_top_k=3)
+fda_comp_systems_engine = fda_comp_systems_index.as_query_engine(similarity_top_k=3)
 fda_gxp_engine = fda_gxp_index.as_query_engine(similarity_top_k=3)
 # eu_comp_systems_engine = eu_comp_systems_index.as_query_engine(similarity_top_k=3)
 # ema_cloud_strategy_engine = ema_cloud_strategy_index.as_query_engine(similarity_top_k=3)
 # ema_risk_management_engine = ema_risk_management_index.as_query_engine(similarity_top_k=3)
 
 query_engine_tools = [
-    # QueryEngineTool.from_defaults(
-    #     query_engine=fda_comp_systems_engine,
-    #     description="""This document outlines the requirements and regulations for electronic 
-    #                           records and electronic signatures in the context of the Federal Food, Drug, 
-    #                           and Cosmetic Act."""
-    # ),
+    QueryEngineTool.from_defaults(
+        query_engine=fda_comp_systems_engine,
+        description="""This document outlines the requirements and regulations for electronic 
+                              records and electronic signatures in the context of the Federal Food, Drug, 
+                              and Cosmetic Act."""
+    ),
     QueryEngineTool.from_defaults(
         query_engine=fda_gxp_engine,
         description="""The FDA GXP document provides guidelines and regulations for ensuring the 
@@ -131,6 +139,27 @@ query_engine = RouterQueryEngine.from_defaults(
     query_engine_tools=query_engine_tools
 )
 
+# user_input = "What are the key principles of GAMP 5 for ensuring data integrity in GxP systems?"
+# prompt = f"""
+#         You have been trained on the following documents:
+#
+#         1. FDA_Title21_CFR_Part_11_computer_systems.pdf
+#         2. FDA_GAMP5.pdf
+#         3. EU_annex11_computerised_systems.pdf
+#         4. EMA_cloud_strategy.pdf
+#         5. EMA_guideline_q9_quality_risk_management.pdf
+#
+#         Make sure to use all of them when answering the question below.
+#         You may uselet's procee external knowledge to reason about the question you are asked to answer but DO NOT use external knowledge to answer the question.
+#
+#         QUESTION:
+#         {user_input}
+#         """
+#
+# response = query_engine.query(prompt)
+# print(response)
+
+
 # Function to get the session state
 def get_session_state():
     return st.session_state
@@ -146,8 +175,6 @@ def get_response_without_metadata(response):
     # print(response)
     return response #response['choices'][0]['text']
 
-# Main app
-import streamlit as st
 
 
 def main():
@@ -193,6 +220,7 @@ def handle_input(conversation):
         """
 
         response = query_engine.query(prompt)
+        print(response)
         answer = get_response_without_metadata(response)
 
         # Add answer to conversation
