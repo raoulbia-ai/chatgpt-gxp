@@ -178,11 +178,21 @@ def get_response_without_metadata(response):
 
 
 def main():
-    st.title("ChatGPT - GxP")
+    st.title("ChatGPT - GxP Q&A")
     st.write("<style>div.block-container{align-items: center;}</style>", unsafe_allow_html=True)
-    st.markdown(
-        "<div style='text-align: center'>Proof of Concept ChatGPT Application trained on GAMP 5 and other similar public documents.</div>",
-        unsafe_allow_html=True)
+    st.markdown("""
+        <div style='text-align: center'>Proof of Concept ChatGPT Application trained on GAMP 5 and other similar public documents.</div>
+        
+        As an AI expert in GxP regulatory guidelines and pharmaceutical compliance, my knowledge is exclusively 
+        based on these specific documents:
+
+        1. FDA Title 21 CFR Part 11: Computer Systems Validation in GxP Environments
+        2. FDA's GAMP 5 Guide: Standards for GxP Compliant Computerized Systems
+        3. EU's Annex 11: Computerised Systems in GxP Contexts
+        4. EMA's Cloud Strategy: Compliance in Digital Data Storage for GxP
+        5. EMA's Guideline on Quality Risk Management (Q9)
+        6. Guide for using Open Source Software (OSS) in Regulated Industries based on GAMP
+        """, unsafe_allow_html=True)
 
     # Session state to store conversation history
     if 'conversation' not in st.session_state:
