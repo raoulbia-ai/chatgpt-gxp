@@ -232,10 +232,10 @@ def handle_input(conversation):
             seek clarification to ensure precise responses. While prioritizing direct answers, also proactively suggest 
             related topics or questions for deeper exploration when relevant.
             
-            End your response by adding a paragraph referencing the name or names of the document or documents you have 
-            used to answer the question.
+            Conclude each response by clearly stating which document(s) from the above list informed your answer, 
+            ensuring transparency and specificity in your references.
             
-            DO NOT use any external knowledge when answering the question!
+            Refrain from using any external knowledge beyond these specified documents.
 
             QUESTION:
             {user_input}

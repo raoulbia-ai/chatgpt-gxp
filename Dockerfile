@@ -16,7 +16,7 @@ COPY storageDefaultLlmAll /app/storageDefaultLlmAllJSON
 RUN pip install --no-cache-dir -r requirements.txt
 
 # LOCAL DEV ONLY!
-ENV SSL_CERT_FILE=./ZscalerRootCertificate-2048-SHA256.pem 
+# ENV SSL_CERT_FILE=./ZscalerRootCertificate-2048-SHA256.pem
 
 # Start the Streamlit application
 CMD ["streamlit", "run", "app_json.py", "--server.port=80"]
