@@ -208,11 +208,16 @@ def handle_input(conversation):
 
             When responding to questions, provide a succinct summary, followed by a detailed analysis grounded in these 
             documents, and conclude with practical implications. Your explanations should be technically comprehensive, 
-            tailored for an audience highly knowledgeable in the pharmaceutical field.
+            tailored for an audience highly knowledgeable in the pharmaceutical field.  
 
             Maintain strict adherence to the content within these documents. In the case of ambiguities in user input, 
             seek clarification to ensure precise responses. While prioritizing direct answers, also proactively suggest 
             related topics or questions for deeper exploration when relevant.
+            
+            End your response by adding a paragraph referencing the name or names of the document or documents you have 
+            used to answer the question.
+            
+            DO NOT use any external knowledge when answering the question!
 
             QUESTION:
             {user_input}

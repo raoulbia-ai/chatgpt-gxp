@@ -10,7 +10,7 @@ COPY .env /app/.env
 
 
 # Copy the storageDefaultLlmAll directory into the container
-COPY storageDefaultLlmAll /app/storageDefaultLlmAll
+COPY storageDefaultLlmAll /app/storageDefaultLlmAllJSON
 
 # Install any necessary dependencies
 RUN pip install --no-cache-dir -r requirements.txt
@@ -19,4 +19,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 ENV SSL_CERT_FILE=./ZscalerRootCertificate-2048-SHA256.pem 
 
 # Start the Streamlit application
-CMD ["streamlit", "run", "app.py", "--server.port=80"]
+CMD ["streamlit", "run", "app_json.py", "--server.port=80"]
