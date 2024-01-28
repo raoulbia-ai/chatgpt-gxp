@@ -10,7 +10,7 @@ COPY .env /app/.env
 
 
 # Copy the storageDefaultLlmAll directory into the container
-COPY storageDefaultLlmAll /app/storageDefaultLlmAllJSON
+COPY storageDefaultLlmAllJSON /app/storageDefaultLlmAllJSON
 
 # Install any necessary dependencies
 RUN pip install --no-cache-dir -r requirements.txt

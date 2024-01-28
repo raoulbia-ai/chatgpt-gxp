@@ -2,7 +2,5 @@
 .history/
 archive/
 data/xml/
-storageDefaultLlmAll/
-storageDefaultLlmAllJSON/
 .env
 ZscalerRootCertificate-2048-SHA256.pem
