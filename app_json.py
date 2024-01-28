@@ -105,7 +105,7 @@ except:
     ema_cloud_strategy_index = VectorStoreIndex.from_documents(ema_cloud_strategy, show_progress=True)
     ema_risk_management_index = VectorStoreIndex.from_documents(ema_risk_management, show_progress=True)
     oss_index = VectorStoreIndex.from_documents(oss, show_progress=True)
-    datacatalog_index = VectorStoreIndex.from_documents(oss, show_progress=True)
+    datacatalog_index = VectorStoreIndex.from_documents(datacatalog, show_progress=True)
 
     fda_comp_systems_index.storage_context.persist(persist_dir='storageDefaultLlmAllJSON')
     fda_gxp_index.storage_context.persist(persist_dir='storageDefaultLlmAllJSON')
