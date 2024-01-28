@@ -1,6 +1,7 @@
 .idea/
 .history/
 archive/
+data/xml/
 storageDefaultLlmAll/
 storageDefaultLlmAllJSON/
 .env

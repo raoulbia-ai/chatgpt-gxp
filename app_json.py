@@ -78,6 +78,9 @@ try:
     oss_storage_context = StorageContext.from_defaults(persist_dir='storageDefaultLlmAllJSON')
     oss_index = load_index_from_storage(oss_storage_context)
 
+    datacatalog_storage_context = StorageContext.from_defaults(persist_dir='storageDefaultLlmAllJSON')
+    datacatalog_index = load_index_from_storage(datacatalog_storage_context)
+
     print('loading from disk')
 except:
     fda_comp_systems = loader.load_data(Path("./data/json/FDA_Title21_CFR_Part_11_computer_systems.json"))
@@ -86,6 +89,7 @@ except:
     ema_cloud_strategy = loader.load_data(Path("./data/json/EMA_cloud_strategy.json"))
     ema_risk_management = loader.load_data(Path("./data/json/EMA_guideline_q9_quality_risk_management.json"))
     oss = loader.load_data(Path("./data/json/OSS_in_Regulated_Industries_based_on_GAMP.json"))
+    datacatalog = loader.load_data(Path("./data/json/TheEnterpriseDataCatalog.json"))
 
     print(f'Loaded  fda_comp_systems with {len(fda_comp_systems)} pages')
     print(f'Loaded  fda_gxp with {len(fda_gxp)} pages')
@@ -93,6 +97,7 @@ except:
     print(f'Loaded  ema_cloud_strategy with {len(ema_cloud_strategy)} pages')
     print(f'Loaded  ema_risk_management with {len(ema_risk_management)} pages')
     print(f'Loaded  ema_risk_management with {len(oss)} pages')
+    print(f'Loaded  ema_risk_management with {len(datacatalog)} pages')
 
     fda_comp_systems_index = VectorStoreIndex.from_documents(fda_comp_systems, show_progress=True)
     fda_gxp_index = VectorStoreIndex.from_documents(fda_gxp, show_progress=True)
@@ -100,6 +105,7 @@ except:
     ema_cloud_strategy_index = VectorStoreIndex.from_documents(ema_cloud_strategy, show_progress=True)
     ema_risk_management_index = VectorStoreIndex.from_documents(ema_risk_management, show_progress=True)
     oss_index = VectorStoreIndex.from_documents(oss, show_progress=True)
+    datacatalog_index = VectorStoreIndex.from_documents(oss, show_progress=True)
 
     fda_comp_systems_index.storage_context.persist(persist_dir='storageDefaultLlmAllJSON')
     fda_gxp_index.storage_context.persist(persist_dir='storageDefaultLlmAllJSON')
@@ -107,6 +113,7 @@ except:
     eu_comp_systems_index.storage_context.persist(persist_dir='storageDefaultLlmAllJSON')
     ema_risk_management_index.storage_context.persist(persist_dir='storageDefaultLlmAllJSON')
     oss_index.storage_context.persist(persist_dir='storageDefaultLlmAllJSON')
+    datacatalog_index.storage_context.persist(persist_dir='storageDefaultLlmAllJSON')
 
 fda_comp_systems_engine = fda_comp_systems_index.as_query_engine(similarity_top_k=3)
 fda_gxp_engine = fda_gxp_index.as_query_engine(similarity_top_k=3)
@@ -114,6 +121,7 @@ eu_comp_systems_engine = eu_comp_systems_index.as_query_engine(similarity_top_k=
 ema_cloud_strategy_engine = ema_cloud_strategy_index.as_query_engine(similarity_top_k=3)
 ema_risk_management_engine = ema_risk_management_index.as_query_engine(similarity_top_k=3)
 oss_engine = oss_index.as_query_engine(similarity_top_k=3)
+datacatalog_engine = oss_index.as_query_engine(similarity_top_k=3)
 
 query_engine_tools = [
     QueryEngineTool.from_defaults(
@@ -153,6 +161,10 @@ query_engine_tools = [
         approach to validation and adherence to regulatory requirements. The guide also explores the similarities and 
         differences between OSS and commercial software, emphasizing the need for proper management and validation 
         processes to ensure OSS meets industry standards."""
+    ),
+    QueryEngineTool.from_defaults(
+        query_engine=datacatalog_engine,
+        description=""""""
     )
 ]
 
@@ -192,6 +204,7 @@ def main():
         4. EMA's Cloud Strategy: Compliance in Digital Data Storage for GxP
         5. EMA's Guideline on Quality Risk Management (Q9)
         6. Guide for using Open Source Software (OSS) in Regulated Industries based on GAMP
+        7. The Enterprise Data Catalog
         """, unsafe_allow_html=True)
 
     # Session state to store conversation history
@@ -223,6 +236,7 @@ def handle_input(conversation):
             4. EMA's Cloud Strategy: Compliance in Digital Data Storage for GxP
             5. EMA's Guideline on Quality Risk Management (Q9)
             6. Guide for using Open Source Software (OSS) in Regulated Industries based on GAMP
+            7. The Enterprise Data Catalog
 
             When responding to questions, provide a succinct summary, followed by a detailed analysis grounded in these 
             documents, and conclude with practical implications. Your explanations should be technically comprehensive, 
