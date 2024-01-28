@@ -164,7 +164,10 @@ query_engine_tools = [
     ),
     QueryEngineTool.from_defaults(
         query_engine=datacatalog_engine,
-        description=""""""
+        description="""The Enterprise Data Catalog" provides guidance on managing and organizing data assets within an 
+        organization, emphasizing the importance of data governance and metadata management. It offers strategies for 
+        implementing an enterprise data catalog and highlights its benefits in improving data quality, accessibility, 
+        and compliance."""
     )
 ]
 
