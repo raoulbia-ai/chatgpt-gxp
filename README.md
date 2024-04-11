@@ -2,8 +2,15 @@
 # Document Q&A PoC
 
 This repository contains a Streamlit application that uses a question-answering model to provide responses based on a set of regulatory documents. The application is  
-designed to handle questions related to GxP regulatory guidelines and pharmaceutical compliance. The model's knowledge is based on specific documents including FDA     
-Title 21 CFR Part 11, FDA's GAMP 5 Guide, EU's Annex 11, EMA's Cloud Strategy, and EMA's Guideline on Quality Risk Management (Q9). 
+designed to handle questions related to GxP regulatory guidelines and pharmaceutical compliance. 
+
+The model's knowledge is based on specific documents including 
+
+1. FDA Title 21 CFR Part 11
+2. FDA's GAMP 5 Guide
+3. EU's Annex 11
+4. EMA's Cloud Strategy
+5. EMA's Guideline on Quality Risk Management (Q9). 
 
 ## Deployment
 
