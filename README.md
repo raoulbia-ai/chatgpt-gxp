@@ -1,51 +1,42 @@
-#### Docker commands
 
-Name of container registry: `gptserve`
+# Document Q&A PoC
 
-Name of Repository: `chatgpt_gxp`
+This repository contains a Streamlit application that uses a question-answering model to provide responses based on a set of regulatory documents. The application is  
+designed to handle questions related to GxP regulatory guidelines and pharmaceutical compliance. The model's knowledge is based on specific documents including FDA     
+Title 21 CFR Part 11, FDA's GAMP 5 Guide, EU's Annex 11, EMA's Cloud Strategy, and EMA's Guideline on Quality Risk Management (Q9). 
 
-Name of WebApp: `gptgxp`
+## Deployment
 
-Name of resource group: `gptserve-rg`
+### Docker Commands for `gptserve` Container Registry
 
-Login command: `az acr login --name gptserve` or `docker login gptserve.azurecr.io`
+This document provides instructions on how to log into the `gptserve` Azure Container Registry (ACR) and interact with the `chatgpt_gxp` repository.
 
-The docker login command is used to log into a Docker registry. In your case, you're trying to log into an Azure Container Registry (ACR).
+### Resources
 
-The username and password you need to use are the ones associated with the Azure Container Registry you're trying to log into.
+- Container Registry: `gptserve`
+- Repository: `chatgpt_gxp`
+- WebApp: `gptgxp`
+- Resource Group: `gptserve-rg`
 
-You can retrieve these credentials from the Azure portal:
+### Logging into the Registry
+
+You can log into the ACR using either the Azure CLI or Docker. Here are the commands for both:
+
+- Azure CLI: `az acr login --name gptserve`
+- Docker: `docker login gptserve.azurecr.io`
+
+The username and password for logging in are associated with the `gptserve` ACR.
+
+### Retrieving Credentials
+
+#### Azure Portal
 
 1. Navigate to your Azure Container Registry resource.
 2. Click on "Access keys" in the left-hand menu.
 3. Here you'll find the "Login server", "Username", and two passwords (password and password2). You can use either of the two passwords.
 
+#### Azure CLI
 
-Alternatively, if you have the Azure CLI installed, you can retrieve the credentials using the following command:
+If you have the Azure CLI installed, you can retrieve the credentials using the following command:
 
 `az acr credential show --name gptserve`
-
-Replace gptserve with the name of your Azure Container Registry. This command will return the "username" and "passwords".
-
-Once you have the username and password, you can use them to log in:
-
-Replace yourusername and yourpassword with your actual username and password.
-
-```
-docker build -t gptserve.azurecr.io/chatgpt_gxp:v2 .
-docker push gptserve.azurecr.io/chatgpt_gxp:v2
-```
-
-You can now either deploy the Docker container using the code below, or go to the Portal and manually update the tag 
-version in the Deployment Center. 
-```
-az functionapp config container set 
---name gptgxp 
---resource-group gptserve-rg 
---docker-custom-image-name gptserve.azurecr.io/chatgpt_gxp:v2
---docker-registry-server-url https://gptserve.azurecr.io --docker-registry-server-user gptserve --docker-registry-server-password <PASSWORD>
-```
-
-Note: to get the password for the ACR login above use `az acr credential show --name` 
-
-To run the Docker image locally: `docker run -p 8080:80 gptserve.azurecr.io/chatgpt_gxp:v2`

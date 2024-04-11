@@ -1,16 +1,29 @@
+"""
+this script can be used standalone to set up the persisted vector index store
+"""
+from llama_index.core.tools import QueryEngineTool, ToolMetadata
+from llama_index.core.query_engine import SubQuestionQueryEngine, RouterQueryEngine
+from llama_index.core import (SimpleDirectoryReader,
+                              Document,
+                              VectorStoreIndex,
+                              SummaryIndex,
+                              load_index_from_storage,
+                              StorageContext,
+                              ServiceContext
+                              )
+
 import os
 from dotenv import load_dotenv, find_dotenv
-from llama_index import SimpleDirectoryReader, ServiceContext, VectorStoreIndex, StorageContext, load_index_from_storage
-from llama_index import set_global_service_context
-from llama_index.tools import QueryEngineTool
-from llama_index.query_engine import SubQuestionQueryEngine, RouterQueryEngine
+load_dotenv(find_dotenv()) # read local .env file
+# OpenAI.api_key = os.getenv("OPENAI_API_KEY")
+openai_api_key = os.environ['OPENAI_API_KEY']
 
-load_dotenv(find_dotenv(), override=True)
-username = os.environ.get('BASIC_AUTH_USERNAME')
-password = os.environ.get('BASIC_AUTH_PASSWORD')
+# load_dotenv(find_dotenv(), override=True)
+# username = os.environ.get('BASIC_AUTH_USERNAME')
+# password = os.environ.get('BASIC_AUTH_PASSWORD')
 
 service_context = ServiceContext.from_defaults()
-set_global_service_context(service_context=service_context)
+# set_global_service_context(service_context=service_context)
 
 try:
     fda_comp_systems_storage_context = StorageContext.from_defaults(persist_dir='storageDefaultLlmAll')
@@ -114,6 +127,7 @@ def rerank_results(results, criteria):
         # In case of an error, you might want to handle it or log it.
         # Placeholder for future error handling/logging.
         raise e
+
 
 def criteria(result):
     # This is a placeholder function. You'll need to replace this with your actual criteria.

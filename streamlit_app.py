@@ -37,7 +37,8 @@ def handle_input(conversation):
     user_input = st.session_state.question_input
     if user_input:
         initial_results = query_engine.query(user_input)
-        reranked_results = rerank_results(initial_results, criteria)
+        # reranked_results = rerank_results(initial_results, criteria)  # TODO fix bug
+        reranked_results = initial_results
         
         # Get the current date and time
         now = datetime.now()
@@ -49,7 +50,8 @@ def handle_input(conversation):
             writer = csv.writer(f)
             # Write the question, the top answer, and the timestamp to the CSV file
             # Assuming reranked_results[0] is the top answer
-            writer.writerow([user_input, reranked_results[0], timestamp])
+            # writer.writerow([user_input, reranked_results[0], timestamp])
+            writer.writerow([user_input, reranked_results, timestamp])
         
         # Add question to conversation
         conversation.append(("You", user_input))
@@ -72,6 +74,8 @@ def handle_input(conversation):
             seek clarification to ensure precise responses. While prioritizing direct answers, also proactively suggest 
             related topics or questions for deeper exploration when relevant.
 
+            If the user question is not specific, ask for clarification!
+            
             QUESTION:
             {user_input}
         """

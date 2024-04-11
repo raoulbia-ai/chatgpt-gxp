@@ -4,3 +4,4 @@ archive/
 data/xml/
 .env
 ZscalerRootCertificate-2048-SHA256.pem
+.aider*

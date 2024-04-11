@@ -11,15 +11,16 @@ import streamlit as st
 import nest_asyncio
 nest_asyncio.apply()
 
-
-# from langchain import OpenAI # deprecated
-# from langchain_openai import OpenAI
-
-from llama_index import SimpleDirectoryReader, ServiceContext, VectorStoreIndex, StorageContext, load_index_from_storage
-from llama_index import set_global_service_context
-# from llama_index.response.pprint_utils import pprint_response
-from llama_index.tools import QueryEngineTool, ToolMetadata
-from llama_index.query_engine import SubQuestionQueryEngine, RouterQueryEngine
+from llama_index.core.tools import QueryEngineTool, ToolMetadata
+from llama_index.core.query_engine import SubQuestionQueryEngine, RouterQueryEngine
+from llama_index.core import (SimpleDirectoryReader,
+                              Document,
+                              VectorStoreIndex,
+                              SummaryIndex,
+                              load_index_from_storage,
+                              StorageContext,
+                              ServiceContext
+                              )
 
 from dotenv import load_dotenv, find_dotenv
 import os
@@ -29,18 +30,16 @@ username = os.environ.get('BASIC_AUTH_USERNAME')
 password = os.environ.get('BASIC_AUTH_PASSWORD')
 
 
-# import httpx
-# with httpx.Client(verify=False) as client:
-#     response = client.get('http://localhost:8501/')
+# from pathlib import Path
+# from llama_index import download_loader
 
-
-# text-davinci=003 is deprecated - see https://stackoverflow.com/questions/77789886/openai-api-error-the-model-text-davinci-003-has-been-deprecated
-# llm = OpenAI(temperature=0, model_name="gpt-3.5-turbo-instruct", max_tokens=-1)
+# JSONReader = download_loader("JSONReader")
+# loader = JSONReader()
 
 service_context = ServiceContext.from_defaults(
     # llm=llm
 )
-set_global_service_context(service_context=service_context)
+# set_global_service_context(service_context=service_context)
 
 
 
@@ -68,6 +67,12 @@ except:
     ema_cloud_strategy = SimpleDirectoryReader(input_files=["./data/EMA_cloud_strategy.pdf"]).load_data()
     ema_risk_management = SimpleDirectoryReader(input_files=["./data/EMA_guideline_q9_quality_risk_management.pdf"]).load_data()
 
+    # fda_comp_systems = loader.load_data(Path("./data/json/FDA_Title21_CFR_Part_11_computer_systems.json"))
+    # fda_gxp = loader.load_data(Path("./data/json/FDA_GAMP5.json"))
+    # eu_comp_systems = loader.load_data(Path("./data/json/EU_annex11_computerised_systems.json"))
+    # ema_cloud_strategy = loader.load_data(Path("./data/json/EMA_cloud_strategy.json"))
+    # ema_risk_management = loader.load_data(Path("./data/json/EMA_guideline_q9_quality_risk_management.json"))
+    
     print(f'Loaded  fda_comp_systems with {len(fda_comp_systems)} pages')
     print(f'Loaded  fda_gxp with {len(fda_gxp)} pages')
     print(f'Loaded  eu_comp_systems with {len(eu_comp_systems)} pages')
@@ -192,7 +197,9 @@ def handle_input(conversation):
             Maintain strict adherence to the content within these documents. In the case of ambiguities in user input, 
             seek clarification to ensure precise responses. While prioritizing direct answers, also proactively suggest 
             related topics or questions for deeper exploration when relevant.
-
+            
+            If the user question is not specific, ask for clarification!
+            
             QUESTION:
             {user_input}
         """
